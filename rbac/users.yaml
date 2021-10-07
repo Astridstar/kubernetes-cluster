@@ -6,6 +6,7 @@ roleRef:
   kind: ClusterRole
   name: poc:cluster-admin-group-role
   apiGroup: rbac.authorization.k8s.io
+  serviceAccount: 
 subjects:
 - kind: User
   name: pocAdmin
