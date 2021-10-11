@@ -1,45 +1,8 @@
 #!/bin/bash
 
-echo "---------------- Create kubernetes cluster ---------------- "
-sudo kubeadm init --cri-socket /run/containerd/containerd.sock --pod-network-cidr 192.168.0.0/16
-
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-sleep 3
-
-echo "---------------- Apply calico ---------------- "
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml 
-
-sleep 3
-
-echo "---------------- Generate CSR for pocAdmin ---------------- "
-openssl req -new -newkey rsa:4096 -nodes -keyout pocAdmin.key -out pocAdmin.csr -subj "/CN=pocAdmin/O=devops" 
-CERT_VALUE=$(cat pocAdmin.csr | base64 | tr -d '\n')
-sed -i "s|<string>|$CERT_VALUE|g" ./pocAdminCsr.yaml
-
 CONTEXT_USR=pocAdmin
 CURRENT_CONTEXT=pocContext
 SERVICE_ACCOUNT=default
-
-echo "---------------- Apply user and role for ${CONTEXT_USR} ---------------- "
-#kubectl apply -f roles.yaml 
-kubectl apply -f users.yaml 
-
-echo "---------------- Apply CSR for ${CONTEXT_USR} ---------------- "
-kubectl apply -f pocAdminCsr.yaml 
-
-echo "---------------- Generate certs for ${CONTEXT_USR} ---------------- "
-kubectl get csr ${CONTEXT_USR} -o jsonpath='{.status.certificate}'| base64 -d > ${CONTEXT_USR}.crt
-
-echo "---------------- Approve CSR for ${CONTEXT_USR} ---------------- "
-kubectl certificate approve ${CONTEXT_USR}
-
-echo "---------------- set credendtials to context ---------------- "
-kubectl config set-credentials ${CONTEXT_USR} --client-key=${CONTEXT_USR}.key --client-certificate=${CONTEXT_USR}.crt --embed-certs=true
-kubectl config set-context ${CURRENT_CONTEXT} --cluster=kubernetes --user=${CONTEXT_USR}
-#kubectl config use-context ${CURRENT_CONTEXT}
 
 echo "---------------- Generating kubeconfig for user ${CONTEXT_USR} ---------------- "
 USER_TOKEN_NAME=$(kubectl -n kube-system get serviceaccount ${SERVICE_ACCOUNT} -o=jsonpath='{.secrets[0].name}')
@@ -64,6 +27,7 @@ contexts:
   context:
     cluster: ${CURRENT_CLUSTER}
     user: ${CONTEXT_USR}
+    namespace: kube-system
 clusters:
 - name: ${CURRENT_CLUSTER}
   cluster:

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: 20.43.181.175
+      http:
+        paths:
+          - path: sohsumgmail.onmicrosoft.com
+            pathType: /dashboard
+            backend:
+              service:
+                name: traefik-web-ui
+                port: 
+                  name: web
