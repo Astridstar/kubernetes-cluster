@@ -3,6 +3,7 @@
 
 # expose traefik dashboard
 #kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n <namespace>) -n <namespace> <from-port>:<to-port>
+#kubectl port-forward $(kubectl get pods -l "<key>=<value>" --output=name -n <namespace> ) -n <namespace> <from-port>:<to-port>
 kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n kube-system) -n kube-system 9000:9000
 
 # access the command line of the container
