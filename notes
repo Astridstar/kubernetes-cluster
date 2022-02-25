@@ -1,0 +1,31 @@
+# to access dashboard
+# http://127.0.0.1:9000/dashboard/
+
+# expose traefik dashboard
+#kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n <namespace>) -n <namespace> <from-port>:<to-port>
+kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name -n kube-system) -n kube-system 9000:9000
+
+# access the command line of the container
+kubectl exec --stdin --tty <pod> -n <namespace> -- /bin/sh
+
+# Aliases
+alias kca='f(){ kubectl "$@" -A -o wide;  unset -f f; }; f'
+alias kevt='f(){ kubectl get events -A | grep -i "$@"; unset -f f; }; f'
+ 
+# command line of container - kexec <pod> -n <namespace>
+#alias kexec='f(){ kubectl exec --stdin --tty "$@" -- /bin/sh; unset -f f; }; f'
+
+alias k="kubectl"
+alias kd="k delete"
+alias kf="kubectl apply -f"
+alias kpod="kubectl get pod"
+alias ksvc="kubectl get svc"
+alias kall="kubectl get all"
+alias kmost="kubectl get daemonset,replicaset,deployment,svc,pod,pv,pvc"
+alias kmostd="kca get daemonset,replicaset,deployment,svc,pod,pv,pvc"
+alias klogs="kubectl logs --since=2h"
+alias ktail="kubectl logs --tail=20"
+ 
+# change the current namespace permanently for this session - kns=default (for example)
+alias kns="kubectl config set-context --current --namespace"
+
