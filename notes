@@ -30,3 +30,10 @@ alias ktail="kubectl logs --tail=20"
 # change the current namespace permanently for this session - kns=default (for example)
 alias kns="kubectl config set-context --current --namespace"
 
+# Hue
+export WEB_HOST=$(kubectl get node -o jsonpath="{.items[0].metadata.name}")
+
+export WEB_PORT=$(kubectl get service hue-balancer -o jsonpath="{.spec.ports[*].nodePort}" --namespace default)
+
+echo http://$WEB_HOST:$WEB_PORT
+http://lima-rancher-desktop:32510

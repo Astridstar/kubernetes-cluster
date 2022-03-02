@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose -f ./docker-compose.yml convert
+    kompose.version: 1.26.0 (40646f47)
+  labels:
+    app: zookeeper
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose -f ./docker-compose.yml convert
+        kompose.version: 1.26.0 (40646f47)
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - image: wurstmeister/zookeeper:3.4.6
+          name: zookeeper
+          ports:
+            - containerPort: 2181
