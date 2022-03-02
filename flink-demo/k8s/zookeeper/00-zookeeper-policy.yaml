@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: zookeeper-policy
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper
+  maxUnavailable: 1

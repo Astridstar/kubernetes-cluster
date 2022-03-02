@@ -1,0 +1,47 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-zk-001
+  labels:
+    type: local
+    app: zookeeper
+spec:
+  storageClassName: local-path
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/sarah/k8storage/zookeeper/disk001"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-zk-002
+  labels:
+    type: local
+    app: zookeeper
+spec:
+  storageClassName: local-path
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/sarah/k8storage/zookeeper/disk002"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-zk-003
+  labels:
+    type: local
+    app: zookeeper
+spec:
+  storageClassName: local-path
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/sarah/k8storage/zookeeper/disk003"
