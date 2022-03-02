@@ -11,38 +11,62 @@ metadata:
   name: traefik-ingress-controller
   namespace: kube-system
   labels:
-    k8s-app: traefik-ingress-lb
-spec:
+    app: traefik
   selector:
     matchLabels:
-      k8s-app: traefik-ingress-lb
+      app: traefik
       name: traefik-ingress-lb
   template:
     metadata:
       labels:
-        k8s-app: traefik-ingress-lb
+        app: traefik
         name: traefik-ingress-lb
     spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
       containers:
-      - image: traefik:v1.7
+      - image: traefik:v2.5
         name: traefik-ingress-lb
         ports:
-        - name: http
-          containerPort: 80
-          hostPort: 80
-        - name: admin
-          containerPort: 8080
-          hostPort: 8080
+          - name: web
+            containerPort: 8000
+          - name: websecure
+            containerPort: 4443
+          - name: admin
+            containerPort: 8080
         args:
           - --api
-          - --api.dashboard
-          - --kubernetes
           - --logLevel=INFO
-          - --insecureskipverify
-          - --entrypoints='web.address::80'
-          - --entryPoints='websecure.Address::443'
+          - --api.insecure
+          - --accesslog
+          - --entrypoints.web.Address=:8000
+          - --entrypoints.websecure.Address=:4443
+          - --providers.kubernetescrd
+          - --certificatesresolvers.myresolver.acme.tlschallenge
+          - --certificatesresolvers.myresolver.acme.email=foo@you.com
+          - --certificatesresolvers.myresolver.acme.storage=acme.json
+          # Please note that this is the staging Let's Encrypt server.
+          # Once you get things working, you should remove that whole line altogether.
+          - --certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8000
+    - protocol: TCP
+      name: admin
+      port: 8080
+    - protocol: TCP
+      name: websecure
+      port: 4443
+  selector:
+    app: traefik
 ---
 kind: Service
 apiVersion: v1
@@ -52,20 +76,17 @@ metadata:
 spec:
   type: LoadBalancer 
   selector:
-    k8s-app: traefik-ingress-lb
+    app: traefik
   ports:
     - protocol: TCP
-      port: 80
       name: web
-      targetPort: 80
+      port: 8000
     - protocol: TCP
-      port: 8080
       name: admin
-      targetPort: 8080
+      port: 8080
     - protocol: TCP
-      port: 443
-      name: https
-      targetPort: 443
+      name: websecure
+      port: 4443
 ---
 # dashboard.yaml
 apiVersion: traefik.containo.us/v1alpha1
