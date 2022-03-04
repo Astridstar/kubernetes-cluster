@@ -49,3 +49,34 @@ kubectl delete kibana quickstart
       node.roles: ["master"]
       xpack.ml.enabled: true
       #node.remote_cluster_client: false
+
+
+curl  -u "elastic:$PASSWORD" -k -v -XGET -H 'Content-Type: application/json'  "https://localhost:9200/_cluster/state?pretty" 
+curl -u "elastic:$PASSWORD" -k "https://localhost:9200/_cluster/state?pretty" 
+
+curl -u "minicluster-es-elastic-user:$PASSWORD" -H 'Content-Type: application/json' -k "https://localhost:9200/_cluster/state?pretty" 
+
+curl -H 'Content-Type: application/json' -k -X PUT "https://localhost:9200/test?pretty" -d'
+{
+ "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "properties": {
+      "field1": { "type": "text" }
+    }
+  }
+}'
+
+escurl -u "elastic:$(kubectl get secret minicluster-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')" \
+-X PUT "https://localhost:9200/test?pretty" -d'
+{
+ "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "properties": {
+      "field1": { "type": "text" }
+    }
+  }
+}'
