@@ -31,3 +31,21 @@ clusterrolebinding.rbac.authorization.k8s.io/elastic-operator created
 service/elastic-webhook-server created
 statefulset.apps/elastic-operator created
 validatingwebhookconfiguration.admissionregistration.k8s.io/elastic-webhook.k8s.elastic.co created
+
+>> kubectl get elasticsearch 
+
+kubectl get elasticsearch,kibana
+kubectl delete elasticsearch quickstart
+kubectl delete elasticsearch minicluster
+kubectl delete kibana quickstart
+
+
+
+  - name: masters
+    count: 1
+    config:
+      # On Elasticsearch versions before 7.9.0, replace the node.roles configuration with the following:
+      # node.master: true
+      node.roles: ["master"]
+      xpack.ml.enabled: true
+      #node.remote_cluster_client: false

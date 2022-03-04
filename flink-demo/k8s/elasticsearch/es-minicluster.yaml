@@ -1,0 +1,72 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: minicluster
+spec:
+  version: 8.0.1
+  nodeSets:
+  - name: master
+    count: 1
+    config:
+      node.store.allow_mmap: false
+      node.roles: ["master", "ml"]
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: local-path   
+  - name: hot-node
+    count: 1
+    config:
+      node.store.allow_mmap: false
+      node.roles: ["data", "ingest", "transform","data_hot"]
+      node.attr.data: hot
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits: 
+              memory: 2Gi
+              cpu: 2
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 15Gi
+        storageClassName: local-path      
+  # warm nodes, with high storage
+  - name: warm-node
+    count: 1
+    config:
+      node.store.allow_mmap: false
+      node.roles: ["data", "ingest", "transform","data_warm"]
+      node.attr.data: warm
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: 1
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 15Gi
+        storageClassName: local-path    
+        

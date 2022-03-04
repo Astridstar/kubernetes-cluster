@@ -1,0 +1,64 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: minicluster
+spec:
+  version: 8.0.1
+  nodeSets:
+  - name: masters
+    count: 1
+    config:
+      # On Elasticsearch versions before 7.9.0, replace the node.roles configuration with the following:
+      # node.master: true
+      node.roles: ["master"]
+      xpack.ml.enabled: true
+      #node.remote_cluster_client: false
+    podTemplate:
+      metadata:
+        name: es-masters
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: local-path         
+  - name: data
+    count: 1
+    config:
+      # On Elasticsearch versions before 7.9.0, replace the node.roles configuration with the following:
+      # node.master: false
+      # node.data: true
+      # node.ingest: true
+      # node.ml: true
+      # node.transform: true
+      node.roles: ["data", "ingest", "ml", "transform"]
+      #node.remote_cluster_client: false
+    podTemplate:
+      metadata:
+        name: es-data-nodes
+      spec:
+        initContainers:
+        - name: sysctl
+          securityContext:
+            privileged: true
+          command: ['sh', '-c', 'sysctl -w vm.max_map_count=262144']
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data # Do not change this name unless you set up a volume mount for the data path.
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: local-path           
