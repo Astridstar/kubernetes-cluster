@@ -1,27 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose -f ./docker-compose.yml convert
-    kompose.version: 1.26.0 (40646f47)
-  creationTimestamp: null
   labels:
-    io.kompose.service: elasticsearch
+    app: elasticsearch
   name: elasticsearch
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: elasticsearch
+      app: elasticsearch
   strategy: {}
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose -f ./docker-compose.yml convert
-        kompose.version: 1.26.0 (40646f47)
-      creationTimestamp: null
       labels:
-        io.kompose.service: elasticsearch
+        app: elasticsearch
     spec:
       containers:
         - env:
@@ -38,6 +30,4 @@ spec:
           ports:
             - containerPort: 9200
             - containerPort: 9300
-          resources: {}
       restartPolicy: Always
-status: {}

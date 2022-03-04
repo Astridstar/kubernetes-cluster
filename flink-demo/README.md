@@ -15,3 +15,4 @@ Deployment order:
 - taskmanager
 - sqlclient
 
+Note for zookeeper and kafka currenly only deployment method works and not statefulset. Need to debug more when time permits.
