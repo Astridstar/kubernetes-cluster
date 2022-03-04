@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: zookeeper
+  namespace: kafka
   labels:
     app: zookeeper
 spec:
@@ -15,6 +16,7 @@ spec:
   podManagementPolicy: OrderedReady
   template:
     metadata:
+      namespace: kafka
       labels:
         app: zookeeper
     spec:
@@ -31,7 +33,7 @@ spec:
       containers:
       - name: zookeeper
         imagePullPolicy: Always
-        image: bitnami/zookeeper:latest
+        image: k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10
         ports:
         - containerPort: 2181
           name: client
@@ -43,22 +45,8 @@ spec:
         - sh
         - -c
         - "start-zookeeper \
-          --servers=3 \
-          --data_dir=/var/lib/zookeeper/data \
-          --data_log_dir=/var/lib/zookeeper/data/log \
-          --conf_dir=var/lib/zookeeper/conf \
-          --client_port=2181 \
-          --election_port=3888 \
-          --server_port=2888 \
-          --tick_time=2000 \
-          --init_limit=10 \
-          --sync_limit=5 \
-          --heap=512M \
-          --max_client_cnxns=60 \
-          --snap_retain_count=3 \
-          --purge_interval=12 \
-          --max_session_timeout=40000 \
-          --min_session_timeout=4000 \
+          --servers=1 \
+          --conf_dir=/var/lib/zookeeper/conf \
           --log_level=INFO"    
         readinessProbe:
           exec:
@@ -79,9 +67,6 @@ spec:
         volumeMounts:
         - name: datadir
           mountPath: /var/lib/zookeeper
-      securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
   volumeClaimTemplates:
   - metadata:
       name: datadir
